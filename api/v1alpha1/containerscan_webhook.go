@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"fmt"
 	"strings"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -52,25 +53,10 @@ func (r *ContainerScan) Default() {
 
 	// TODO(user): fill in your defaulting logic.
 	if r.Spec.SuspendEmailAlert == nil {
-		r.Spec.SuspendEmailAlert = new(bool)
-	}
-	if r.Spec.Email == "" {
-		r.Spec.Email = ""
-	}
-	if r.Spec.RelayHost == "" {
-		r.Spec.RelayHost = ""
+		*r.Spec.SuspendEmailAlert = true
 	}
 	if r.Spec.NotifyExtenal == nil {
-		r.Spec.NotifyExtenal = new(bool)
-	}
-	if r.Spec.ExternalURL == "" {
-		r.Spec.ExternalURL = ""
-	}
-	if r.Spec.ExternalData == "" {
-		r.Spec.ExternalData = ""
-	}
-	if r.Spec.ExternalSecret == "" {
-		r.Spec.ExternalSecret = ""
+		*r.Spec.NotifyExtenal = false
 	}
 }
 
@@ -120,14 +106,21 @@ func (r *ContainerScan) ValidateContainerScan() error {
 }
 
 func (r *ContainerScan) ValidateContainerScanSpec() *field.Error {
-	if r.Spec.SuspendEmailAlert != nil {
+	fmt.Println(*r.Spec.SuspendEmailAlert)
+	if !*r.Spec.SuspendEmailAlert {
 		if r.Spec.Email == "" {
 			return field.Invalid(field.NewPath("spec").Child("email"), r.Spec.Email, ".spec.email field cannot be empty")
 		}
+		if r.Spec.RelayHost == "" {
+			return field.Invalid(field.NewPath("spec").Child("relayhost"), r.Spec.RelayHost, ".spec.relayHost field cannot be empty")
+		}
 	}
-	if r.Spec.NotifyExtenal != nil {
-		if r.Spec.ExternalSecret == "" || r.Spec.ExternalData == "" {
-			return field.Invalid(field.NewPath("spec").Child("email"), r.Spec.Email, ".spec.email field cannot be empty")
+	if *r.Spec.NotifyExtenal {
+		if r.Spec.ExternalSecret == "" {
+			return field.Invalid(field.NewPath("spec").Child("externalsecret"), r.Spec.ExternalSecret, ".spec.externalSecret field cannot be empty")
+		}
+		if r.Spec.ExternalData == "" {
+			return field.Invalid(field.NewPath("spec").Child("externaldata"), r.Spec.ExternalData, ".spec.externalData field cannot be empty")
 		}
 		if !strings.HasPrefix(r.Spec.ExternalURL, "https://") && !strings.HasPrefix(r.Spec.ExternalURL, "http://") {
 			return field.Invalid(field.NewPath("spec").Child("externalurl"), r.Spec.ExternalURL, ".spec.external field must start with http:// or https://")
