@@ -110,7 +110,7 @@ func main() {
 	}
 
 	webhookServer := webhook.NewServer(webhook.Options{
-		CertDir: "/",
+		TLSOpts: tlsOpts,
 	})
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
