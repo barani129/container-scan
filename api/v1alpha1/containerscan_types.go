@@ -38,7 +38,7 @@ type ContainerScanSpec struct {
 
 	// Suspends email alerts if set to true, target email (.spec.email) will not be notified
 	// +optional
-	SuspendEmailAlert *bool `json:"suspendEmail,omitempty"`
+	SuspendEmailAlert *bool `json:"suspendEmailAlert,omitempty"`
 
 	// Target user's email for container status notification
 	// +optional
