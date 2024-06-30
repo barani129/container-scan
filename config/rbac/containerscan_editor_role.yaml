@@ -1,0 +1,31 @@
+# permissions for end users to edit containerscans.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: containerscan-editor-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: container-scan
+    app.kubernetes.io/part-of: container-scan
+    app.kubernetes.io/managed-by: kustomize
+  name: containerscan-editor-role
+rules:
+- apiGroups:
+  - monitoring.spark.co.nz
+  resources:
+  - containerscans
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - monitoring.spark.co.nz
+  resources:
+  - containerscans/status
+  verbs:
+  - get

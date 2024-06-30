@@ -1,0 +1,9 @@
+apiVersion: monitoring.spark.co.nz/v1alpha1
+kind: ContainerScan
+metadata:
+  labels:
+    app.kubernetes.io/name: container-scan
+    app.kubernetes.io/managed-by: kustomize
+  name: containerscan-sample
+spec:
+  # TODO(user): Add fields here
