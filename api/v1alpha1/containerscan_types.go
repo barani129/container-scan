@@ -76,7 +76,7 @@ type ContainerScanStatus struct {
 
 	// last successful timestamp of retrieved cluster status
 	// +optional
-	LastRunTime *metav1.Time `json:"lastPollTime,omitempty"`
+	LastRunTime *metav1.Time `json:"lastRunTime,omitempty"`
 
 	// Indicates if external alerting system is notified
 	// +optional
@@ -97,7 +97,7 @@ type ContainerScanStatus struct {
 // ContainerScan is the Schema for the containerscans API
 // +kubebuilder:printcolumn:name="CreatedAt",type="string",JSONPath=".metadata.creationTimestamp",description="object creation timestamp(in cluster's timezone)"
 // +kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.conditions[].status",description="if set to true, there is no container with non-zero terminate state"
-// +kubebuilder:printcolumn:name="LastPollTime",type="string",JSONPath=".status.lastPollTime",description="last poll timestamp(in cluster's timezone)"
+// +kubebuilder:printcolumn:name="LastSuccessfulTime",type="string",JSONPath=".status.lastRunTime",description="last successful run (where there is no failed containers) timestamp(in cluster's timezone)"
 // +kubebuilder:printcolumn:name="ExternalNotified",type="string",JSONPath=".status.externalNotified",description="indicates if the external system is notified"
 // +kubebuilder:printcolumn:name="IncidentID",type="string",JSONPath=".status.incidentID",description="incident ID from service now"
 type ContainerScan struct {

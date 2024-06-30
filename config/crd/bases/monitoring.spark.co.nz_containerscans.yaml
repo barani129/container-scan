@@ -23,9 +23,10 @@ spec:
       jsonPath: .status.conditions[].status
       name: Ready
       type: string
-    - description: last poll timestamp(in cluster's timezone)
-      jsonPath: .status.lastPollTime
-      name: LastPollTime
+    - description: last successful run (where there is no failed containers) timestamp(in
+        cluster's timezone)
+      jsonPath: .status.lastRunTime
+      name: LastSuccessfulTime
       type: string
     - description: indicates if the external system is notified
       jsonPath: .status.externalNotified
@@ -144,7 +145,7 @@ spec:
               incidentID:
                 description: Incident ID from the rem. Spark specific
                 type: string
-              lastPollTime:
+              lastRunTime:
                 description: last successful timestamp of retrieved cluster status
                 format: date-time
                 type: string

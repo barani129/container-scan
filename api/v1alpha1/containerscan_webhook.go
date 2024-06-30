@@ -17,7 +17,6 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"fmt"
 	"strings"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -108,7 +107,6 @@ func (r *ContainerScan) ValidateContainerScan() error {
 }
 
 func (r *ContainerScan) ValidateContainerScanSpec() *field.Error {
-	fmt.Println(r.Spec.SuspendEmailAlert)
 	if !*r.Spec.SuspendEmailAlert {
 		if r.Spec.Email == "" {
 			return field.Invalid(field.NewPath("spec").Child("email"), r.Spec.Email, ".spec.email field cannot be empty")
