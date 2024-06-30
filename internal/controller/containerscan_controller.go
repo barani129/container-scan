@@ -175,8 +175,9 @@ func (r *ContainerScanReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		return ctrl.Result{}, fmt.Errorf("unable to retrieve in cluster configuration due to %s", err)
 	}
 	actualNamespace := containerSpec.TargetNamespace
-	var afcontainers []string
+
 	if containerStatus.LastRunTime == nil {
+		var afcontainers []string
 		log.Log.Info("Checking for containers that havee exited with non-zero code")
 		ns, err := clientset.CoreV1().Namespaces().Get(ctx, actualNamespace, metav1.GetOptions{})
 		if err != nil || ns.Name != actualNamespace {
@@ -223,6 +224,7 @@ func (r *ContainerScanReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 			report(monitoringv1alpha1.ConditionTrue, fmt.Sprintf("Success. All containers in the target namespace %s have running/zero terminated state", actualNamespace), nil)
 		}
 	} else {
+		var affcontainers []string
 		pastTime := time.Now().Add(-1 * defaultHealthCheckInterval)
 		timeDiff := containerStatus.LastRunTime.Time.Before(pastTime)
 		if timeDiff {
@@ -241,6 +243,7 @@ func (r *ContainerScanReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 				for _, container := range pod.Status.ContainerStatuses {
 					if container.State.Terminated != nil {
 						if container.State.Terminated.ExitCode != 0 {
+							affcontainers = append(affcontainers, container.Name)
 							if !*containerSpec.SuspendEmailAlert {
 								util.SendEmailAlert(pod.Name, container.Name, containerSpec)
 							}
@@ -280,10 +283,10 @@ func (r *ContainerScanReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 					}
 				}
 			}
-			if len(afcontainers) > 0 {
+			if len(affcontainers) > 0 {
 				return ctrl.Result{}, fmt.Errorf("containers with non-zero exit code found in namespace %s", actualNamespace)
 			} else {
-				afcontainers = nil
+				affcontainers = nil
 				report(monitoringv1alpha1.ConditionTrue, fmt.Sprintf("Success. All containers in the target namespace %s have running/zero terminated state", actualNamespace), nil)
 			}
 		}
