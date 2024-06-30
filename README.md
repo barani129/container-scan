@@ -1,8 +1,13 @@
 # container-scan
-// TODO(user): Add simple overview of use/purpose
+Custom resource approach to monitor containers that are terminated with non-zero exit code.
 
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+Checks for containers that are terminated with non-zero exit code in the target namespace and notifies the end user and optionally can notify the remote systems.
+
+After the CRD installation, please execute the following command to under each field in the spec.
+```sh
+kubectl/oc explain containerscan.monitoring.spark.co.nz
+```
 
 ## Getting Started
 
