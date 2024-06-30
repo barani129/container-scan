@@ -143,8 +143,7 @@ func SetReadyCondition(status *v1alpha1.ContainerScanStatus, conditionStatus v1a
 	}
 }
 
-func SendEmailAlert(podname string, contname string, spec *v1alpha1.ContainerScanSpec) {
-	filename := fmt.Sprintf("%s-%s.txt", podname, contname)
+func SendEmailAlert(podname string, contname string, spec *v1alpha1.ContainerScanSpec, filename string) {
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
 		message := fmt.Sprintf(`/bin/echo "Container %s in pod %s is terminated with exit code non-zero" | /usr/sbin/sendmail -f %s -S %s %s`, podname, contname, spec.Email, spec.RelayHost, spec.Email)
 		cmd3 := exec.Command("/bin/bash", "-c", message)
@@ -167,8 +166,7 @@ func SendEmailAlert(podname string, contname string, spec *v1alpha1.ContainerSca
 	}
 }
 
-func SendEmailRecoverAlert(podname string, contname string, spec *v1alpha1.ContainerScanSpec) {
-	filename := fmt.Sprintf("%s-%s.txt", podname, contname)
+func SendEmailRecoverAlert(podname string, contname string, spec *v1alpha1.ContainerScanSpec, filename string) {
 	data, err := ReadFile(filename)
 	if err != nil {
 		fmt.Println(err)
@@ -200,8 +198,7 @@ func ReadFile(filename string) (string, error) {
 	return string(data), nil
 }
 
-func SubNotifyExternalSystem(data map[string]string, status string, url string, username string, password string, podname string, contname string, clstatus *v1alpha1.ContainerScanStatus) error {
-	filename := fmt.Sprintf("%s-%s-ext.txt", podname, contname)
+func SubNotifyExternalSystem(data map[string]string, status string, url string, username string, password string, podname string, contname string, clstatus *v1alpha1.ContainerScanStatus, filename string) error {
 	var fingerprint string
 	var err error
 	if status == "resolved" {
@@ -264,8 +261,7 @@ func randomString(length int) string {
 	return fmt.Sprintf("%x", b)[2 : length+2]
 }
 
-func NotifyExternalSystem(data map[string]string, status string, url string, username string, password string, podname string, contname string, clstatus *v1alpha1.ContainerScanStatus) error {
-	filename := fmt.Sprintf("%s-%s-ext.txt", podname, contname)
+func NotifyExternalSystem(data map[string]string, status string, url string, username string, password string, podname string, contname string, clstatus *v1alpha1.ContainerScanStatus, filename string) error {
 	fig, _ := ReadFile(filename)
 	if fig != "" {
 		log.Printf("External system has already been notified for pod %s and container %s . Exiting", podname, contname)
