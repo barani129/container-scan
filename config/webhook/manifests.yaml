@@ -3,6 +3,8 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   name: mutating-webhook-configuration
+  annotations:
+    cert-manager.io/inject-ca-from-secret: shift-stack/shift-stack-webhook-custom-certificate-secret
 webhooks:
 - admissionReviewVersions:
   - v1
@@ -29,6 +31,8 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
   name: validating-webhook-configuration
+  annotations:
+    cert-manager.io/inject-ca-from-secret: shift-stack/shift-stack-webhook-custom-certificate-secret
 webhooks:
 - admissionReviewVersions:
   - v1
