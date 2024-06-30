@@ -219,6 +219,8 @@ func SubNotifyExternalSystem(data map[string]string, status string, url string, 
 	data["fingerprint"] = fingerprint
 	data["status"] = status
 	data["startsAt"] = time.Now().String()
+	data["alertName"] = fmt.Sprintf("Container %s in pod %s has non-zero exit code, please check", contname, podname)
+	data["message"] = fmt.Sprintf("Container %s in pod %s has non-zero exit code, please check", contname, podname)
 	m, b := data, new(bytes.Buffer)
 	json.NewEncoder(b).Encode(m)
 	var client *http.Client
@@ -273,6 +275,8 @@ func NotifyExternalSystem(data map[string]string, status string, url string, use
 	data["fingerprint"] = fingerprint
 	data["status"] = status
 	data["startsAt"] = time.Now().String()
+	data["alertName"] = fmt.Sprintf("Container %s in pod %s has non-zero exit code, please check", contname, podname)
+	data["message"] = fmt.Sprintf("Container %s in pod %s has non-zero exit code, please check", contname, podname)
 	m, b := data, new(bytes.Buffer)
 	json.NewEncoder(b).Encode(m)
 	var client *http.Client
