@@ -53,9 +53,11 @@ func (r *ContainerScan) Default() {
 
 	// TODO(user): fill in your defaulting logic.
 	if r.Spec.SuspendEmailAlert == nil {
+		r.Spec.SuspendEmailAlert = new(bool)
 		*r.Spec.SuspendEmailAlert = true
 	}
 	if r.Spec.NotifyExtenal == nil {
+		r.Spec.NotifyExtenal = new(bool)
 		*r.Spec.NotifyExtenal = false
 	}
 }
@@ -106,7 +108,7 @@ func (r *ContainerScan) ValidateContainerScan() error {
 }
 
 func (r *ContainerScan) ValidateContainerScanSpec() *field.Error {
-	fmt.Println(*r.Spec.SuspendEmailAlert)
+	fmt.Println(r.Spec.SuspendEmailAlert)
 	if !*r.Spec.SuspendEmailAlert {
 		if r.Spec.Email == "" {
 			return field.Invalid(field.NewPath("spec").Child("email"), r.Spec.Email, ".spec.email field cannot be empty")

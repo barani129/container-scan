@@ -57,12 +57,11 @@ type ContainerScanReconciler struct {
 	recorder                 record.EventRecorder
 }
 
-//+kubebuilder:rbac:groups=monitoring.spark.co.nz,resources=containerscans,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=monitoring.spark.co.nz,resources=containerscans/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=monitoring.spark.co.nz,resources=containerscans/finalizers,verbs=update
-//+kubebuilder:rbac:groups="",resources=namespaces,verbs=get;list;watch
-//+kubebuilder:rbac:groups="",resources=events,verbs=create;patch
-
+// +kubebuilder:rbac:groups=monitoring.spark.co.nz,resources=containerscans,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=monitoring.spark.co.nz,resources=containerscans/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=monitoring.spark.co.nz,resources=containerscans/finalizers,verbs=update
+// +kubebuilder:rbac:groups="",resources=namespaces,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=events,verbs=create;patch
 func (r *ContainerScanReconciler) newContainer() (client.Object, error) {
 	ContainerScanGVK := monitoringv1alpha1.GroupVersion.WithKind(r.Kind)
 	ro, err := r.Scheme.New(ContainerScanGVK)
@@ -202,6 +201,16 @@ func (r *ContainerScanReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 							if err != nil {
 								log.Log.Info("Failed to notify the external system for pod %s and container %s", pod.Name, container.Name)
 							}
+							extFile := fmt.Sprintf("%s-%s-ext.txt", pod.Name, container.Name)
+							fingerprint, err := util.ReadFile(extFile)
+							if err != nil {
+								log.Log.Info("Failed to update the incident ID. Couldn't find the fingerprint in the file")
+							}
+							incident, err := util.SetIncidentID(containerSpec, containerStatus, username, password, fingerprint)
+							if err != nil || incident == "" {
+								log.Log.Info("Failed to update the incident ID, either incident is getting created or other issues.")
+							}
+							containerStatus.IncidentID = incident
 						}
 					}
 				}
@@ -237,11 +246,21 @@ func (r *ContainerScanReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 								if err != nil {
 									log.Log.Info("Failed to notify the external system for pod %s and container %s", pod.Name, container.Name)
 								}
+								extFile := fmt.Sprintf("%s-%s-ext.txt", pod.Name, container.Name)
+								fingerprint, err := util.ReadFile(extFile)
+								if err != nil {
+									log.Log.Info("Failed to update the incident ID. Couldn't find the fingerprint in the file")
+								}
+								incident, err := util.SetIncidentID(containerSpec, containerStatus, username, password, fingerprint)
+								if err != nil || incident == "" {
+									log.Log.Info("Failed to update the incident ID, either incident is getting created or other issues.")
+								}
+								containerStatus.IncidentID = incident
 							}
 						} else {
 							util.SendEmailRecoverAlert(pod.Name, container.Name, containerSpec)
 							if *containerSpec.NotifyExtenal {
-								err := util.SubNotifyExternalSystem(data, "firing", containerSpec.ExternalURL, username, password, pod.Name, container.Name, containerStatus)
+								err := util.SubNotifyExternalSystem(data, "resolved", containerSpec.ExternalURL, username, password, pod.Name, container.Name, containerStatus)
 								if err != nil {
 									log.Log.Info("Failed to notify the external system for pod %s and container %s", pod.Name, container.Name)
 								}
@@ -250,7 +269,7 @@ func (r *ContainerScanReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 					} else if container.State.Running != nil {
 						util.SendEmailRecoverAlert(pod.Name, container.Name, containerSpec)
 						if *containerSpec.NotifyExtenal {
-							err := util.SubNotifyExternalSystem(data, "firing", containerSpec.ExternalURL, username, password, pod.Name, container.Name, containerStatus)
+							err := util.SubNotifyExternalSystem(data, "resolved", containerSpec.ExternalURL, username, password, pod.Name, container.Name, containerStatus)
 							if err != nil {
 								log.Log.Info("Failed to notify the external system for pod %s and container %s", pod.Name, container.Name)
 							}

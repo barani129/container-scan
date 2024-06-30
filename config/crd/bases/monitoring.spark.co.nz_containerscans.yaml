@@ -14,7 +14,28 @@ spec:
     singular: containerscan
   scope: Cluster
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - description: object creation timestamp(in cluster's timezone)
+      jsonPath: .metadata.creationTimestamp
+      name: CreatedAt
+      type: string
+    - description: if set to true, there is no container with non-zero terminate state
+      jsonPath: .status.conditions[].status
+      name: Ready
+      type: string
+    - description: last poll timestamp(in cluster's timezone)
+      jsonPath: .status.lastPollTime
+      name: LastPollTime
+      type: string
+    - description: indicates if the external system is notified
+      jsonPath: .status.externalNotified
+      name: ExternalNotified
+      type: string
+    - description: incident ID from service now
+      jsonPath: .status.incidentID
+      name: IncidentID
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: ContainerScan is the Schema for the containerscans API
