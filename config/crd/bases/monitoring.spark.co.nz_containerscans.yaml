@@ -82,7 +82,7 @@ spec:
               relayHost:
                 description: SMTP Relay host for sending the email
                 type: string
-              suspendEmail:
+              suspendEmailAlert:
                 description: Suspends email alerts if set to true, target email (.spec.email)
                   will not be notified
                 type: boolean

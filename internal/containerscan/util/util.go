@@ -144,7 +144,8 @@ func SetReadyCondition(status *v1alpha1.ContainerScanStatus, conditionStatus v1a
 }
 
 func SendEmailAlert(podname string, contname string, spec *v1alpha1.ContainerScanSpec, filename string) {
-	if _, err := os.Stat(filename); os.IsNotExist(err) {
+	data, _ := ReadFile(filename)
+	if data != "sent" {
 		message := fmt.Sprintf(`/bin/echo "Container %s in pod %s is terminated with exit code non-zero" | /usr/sbin/sendmail -f %s -S %s %s`, podname, contname, spec.Email, spec.RelayHost, spec.Email)
 		cmd3 := exec.Command("/bin/bash", "-c", message)
 		err := cmd3.Run()
@@ -152,26 +153,11 @@ func SendEmailAlert(podname string, contname string, spec *v1alpha1.ContainerSca
 			fmt.Printf("Failed to send the alert: %s", err)
 		}
 		writeFile(filename, "sent")
-	} else {
-		data, _ := ReadFile(filename)
-		if data != "sent" {
-			message := fmt.Sprintf(`/bin/echo "Container %s in pod %s is terminated with exit code non-zero" | /usr/sbin/sendmail -f %s -S %s %s`, podname, contname, spec.Email, spec.RelayHost, spec.Email)
-			cmd3 := exec.Command("/bin/bash", "-c", message)
-			err := cmd3.Run()
-			if err != nil {
-				fmt.Printf("Failed to send the alert: %s", err)
-			}
-		}
-
 	}
 }
 
 func SendEmailRecoverAlert(podname string, contname string, spec *v1alpha1.ContainerScanSpec, filename string) {
-	data, err := ReadFile(filename)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(data)
+	data, _ := ReadFile(filename)
 	if data == "sent" {
 		message := fmt.Sprintf(`/bin/echo "Container %s in pod %s is recovered" | /usr/sbin/sendmail -f %s -S %s %s`, podname, contname, spec.Email, spec.RelayHost, spec.Email)
 		cmd3 := exec.Command("/bin/bash", "-c", message)
@@ -183,7 +169,7 @@ func SendEmailRecoverAlert(podname string, contname string, spec *v1alpha1.Conta
 }
 
 func writeFile(filename string, data string) error {
-	err := os.WriteFile(filename, []byte(data), 0644)
+	err := os.WriteFile(filename, []byte(data), 0666)
 	if err != nil {
 		return err
 	}
@@ -313,6 +299,22 @@ func NotifyExternalSystem(data map[string]string, status string, url string, use
 func basicAuth(username, password string) string {
 	auth := username + ":" + password
 	return base64.StdEncoding.EncodeToString([]byte(auth))
+}
+
+func CreateFile(container string, pod string) error {
+	_, err := os.OpenFile(fmt.Sprintf("/%s-%s.txt", container, pod), os.O_RDONLY|os.O_CREATE, 0666)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func CreateExtFile(container string, pod string) error {
+	_, err := os.OpenFile(fmt.Sprintf("/%s-%s-ext.txt", container, pod), os.O_RDONLY|os.O_CREATE, 0666)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func SetIncidentID(spec *v1alpha1.ContainerScanSpec, status *v1alpha1.ContainerScanStatus, username string, password string, fingerprint string) (string, error) {
