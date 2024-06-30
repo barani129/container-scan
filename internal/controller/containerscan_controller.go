@@ -218,6 +218,9 @@ func (r *ContainerScanReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		}
 		if len(afcontainers) > 0 {
 			return ctrl.Result{}, fmt.Errorf("containers with non-zero exit code found in namespace %s", actualNamespace)
+		} else {
+			afcontainers = nil
+			report(monitoringv1alpha1.ConditionTrue, fmt.Sprintf("Success. All containers in the target namespace %s have running/zero terminated state", actualNamespace), nil)
 		}
 	} else {
 		pastTime := time.Now().Add(-1 * defaultHealthCheckInterval)
@@ -279,10 +282,12 @@ func (r *ContainerScanReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 			}
 			if len(afcontainers) > 0 {
 				return ctrl.Result{}, fmt.Errorf("containers with non-zero exit code found in namespace %s", actualNamespace)
+			} else {
+				afcontainers = nil
+				report(monitoringv1alpha1.ConditionTrue, fmt.Sprintf("Success. All containers in the target namespace %s have running/zero terminated state", actualNamespace), nil)
 			}
 		}
 	}
-	report(monitoringv1alpha1.ConditionTrue, fmt.Sprintf("Success. All containers in the target namespace %s have running/zero terminated state", actualNamespace), nil)
 	return ctrl.Result{RequeueAfter: defaultHealthCheckInterval}, nil
 }
 
