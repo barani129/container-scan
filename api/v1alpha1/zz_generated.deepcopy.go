@@ -110,6 +110,11 @@ func (in *ContainerScanSpec) DeepCopyInto(out *ContainerScanSpec) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.AggregateAlerts != nil {
+		in, out := &in.AggregateAlerts, &out.AggregateAlerts
+		*out = new(bool)
+		**out = **in
+	}
 	if in.NotifyExtenal != nil {
 		in, out := &in.NotifyExtenal, &out.NotifyExtenal
 		*out = new(bool)

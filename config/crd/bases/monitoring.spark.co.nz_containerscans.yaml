@@ -61,6 +61,10 @@ spec:
           spec:
             description: ContainerScanSpec defines the desired state of ContainerScan
             properties:
+              aggregateAlerts:
+                description: aggregate external alerts per pod, if set to false, alarm
+                  will be raised for each problematic container
+                type: boolean
               email:
                 description: Target user's email for container status notification
                 type: string

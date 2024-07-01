@@ -59,6 +59,10 @@ func (r *ContainerScan) Default() {
 		r.Spec.NotifyExtenal = new(bool)
 		*r.Spec.NotifyExtenal = false
 	}
+	if r.Spec.AggregateAlerts == nil {
+		r.Spec.AggregateAlerts = new(bool)
+		*r.Spec.AggregateAlerts = false
+	}
 }
 
 // TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
