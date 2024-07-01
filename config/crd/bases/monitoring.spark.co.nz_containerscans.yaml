@@ -4,6 +4,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.14.0
+    cert-manager.io/inject-ca-from: CERTIFICATE_NAMESPACE/CERTIFICATE_NAME
   name: containerscans.monitoring.spark.co.nz
 spec:
   group: monitoring.spark.co.nz
@@ -13,6 +14,16 @@ spec:
     plural: containerscans
     singular: containerscan
   scope: Cluster
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        service:
+          namespace: system
+          name: webhook-service
+          path: /convert
+      conversionReviewVersions:
+      - v1
   versions:
   - additionalPrinterColumns:
     - description: object creation timestamp(in cluster's timezone)
@@ -61,13 +72,17 @@ spec:
           spec:
             description: ContainerScanSpec defines the desired state of ContainerScan
             properties:
+              aggregateAlerts:
+                description: aggregate external alerts per pod, if set to false, alarm
+                  will be raised for each problematic container
+                type: boolean
               email:
                 description: Target user's email for container status notification
                 type: string
               externalData:
                 description: Data to be sent to the external system in the form of
                   config map
-                type: string
+                type: string 
               externalSecret:
                 description: Secret which has the username and password to post the
                   alert notification to the external system

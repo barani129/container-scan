@@ -145,8 +145,13 @@ func SetReadyCondition(status *v1alpha1.ContainerScanStatus, conditionStatus v1a
 
 func SendEmailAlert(podname string, contname string, spec *v1alpha1.ContainerScanSpec, filename string) {
 	data, _ := ReadFile(filename)
+	var message string
 	if data != "sent" {
-		message := fmt.Sprintf(`/bin/echo "Container %s in pod %s is terminated with exit code non-zero" | /usr/sbin/sendmail -f %s -S %s %s`, podname, contname, spec.Email, spec.RelayHost, spec.Email)
+		if contname == "cont" {
+			message = fmt.Sprintf(`/bin/echo "pod %s has containers with exit code non-zero" | /usr/sbin/sendmail -f %s -S %s %s`, podname, spec.Email, spec.RelayHost, spec.Email)
+		} else {
+			message = fmt.Sprintf(`/bin/echo "Container %s in pod %s is terminated with exit code non-zero" | /usr/sbin/sendmail -f %s -S %s %s`, podname, contname, spec.Email, spec.RelayHost, spec.Email)
+		}
 		cmd3 := exec.Command("/bin/bash", "-c", message)
 		err := cmd3.Run()
 		if err != nil {
@@ -158,8 +163,13 @@ func SendEmailAlert(podname string, contname string, spec *v1alpha1.ContainerSca
 
 func SendEmailRecoverAlert(podname string, contname string, spec *v1alpha1.ContainerScanSpec, filename string) {
 	data, _ := ReadFile(filename)
+	var message string
 	if data == "sent" {
-		message := fmt.Sprintf(`/bin/echo "Container %s in pod %s is recovered" | /usr/sbin/sendmail -f %s -S %s %s`, podname, contname, spec.Email, spec.RelayHost, spec.Email)
+		if contname == "cont" {
+			message = fmt.Sprintf(`/bin/echo "Containers in affected pod %s are recovered" | /usr/sbin/sendmail -f %s -S %s %s`, podname, spec.Email, spec.RelayHost, spec.Email)
+		} else {
+			message = fmt.Sprintf(`/bin/echo "Container %s in pod %s is recovered" | /usr/sbin/sendmail -f %s -S %s %s`, podname, contname, spec.Email, spec.RelayHost, spec.Email)
+		}
 		cmd3 := exec.Command("/bin/bash", "-c", message)
 		err := cmd3.Run()
 		if err != nil {
@@ -202,8 +212,13 @@ func SubNotifyExternalSystem(data map[string]string, status string, url string, 
 	data["fingerprint"] = fingerprint
 	data["status"] = status
 	data["startsAt"] = time.Now().String()
-	data["alertName"] = fmt.Sprintf("Container %s in pod %s has non-zero exit code, please check", contname, podname)
-	data["message"] = fmt.Sprintf("Container %s in pod %s has non-zero exit code, please check", contname, podname)
+	if contname == "cont" {
+		data["alertName"] = fmt.Sprintf("pod %s has non-zero exit code containers, please check", podname)
+		data["message"] = fmt.Sprintf("pod %s has non-zero exit code containers, please check", podname)
+	} else {
+		data["alertName"] = fmt.Sprintf("Container %s in pod %s has non-zero exit code, please check", contname, podname)
+		data["message"] = fmt.Sprintf("Container %s in pod %s has non-zero exit code, please check", contname, podname)
+	}
 	m, b := data, new(bytes.Buffer)
 	json.NewEncoder(b).Encode(m)
 	var client *http.Client
@@ -257,8 +272,13 @@ func NotifyExternalSystem(data map[string]string, status string, url string, use
 	data["fingerprint"] = fingerprint
 	data["status"] = status
 	data["startsAt"] = time.Now().String()
-	data["alertName"] = fmt.Sprintf("Container %s in pod %s has non-zero exit code, please check", contname, podname)
-	data["message"] = fmt.Sprintf("Container %s in pod %s has non-zero exit code, please check", contname, podname)
+	if contname == "cont" {
+		data["alertName"] = fmt.Sprintf("pod %s has non-zero exit code containers, please check", podname)
+		data["message"] = fmt.Sprintf("pod %s has non-zero exit code containers, please check", podname)
+	} else {
+		data["alertName"] = fmt.Sprintf("Container %s in pod %s has non-zero exit code, please check", contname, podname)
+		data["message"] = fmt.Sprintf("Container %s in pod %s has non-zero exit code, please check", contname, podname)
+	}
 	m, b := data, new(bytes.Buffer)
 	json.NewEncoder(b).Encode(m)
 	var client *http.Client

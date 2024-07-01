@@ -48,6 +48,8 @@ type ContainerScanSpec struct {
 	// +optional
 	RelayHost string `json:"relayHost,omitempty"`
 
+	//aggregate external alerts per pod, if set to false, alarm will be raised for each problematic container
+	AggregateAlerts *bool `json:"aggregateAlerts,omitempty"`
 	// To notify the external alerting system, boolean (true, false). Set true to notify the external system.
 	// +optional
 	NotifyExtenal *bool `json:"notifyExternal,omitempty"`
