@@ -179,7 +179,7 @@ func SendEmailRecoverAlert(podname string, contname string, spec *v1alpha1.Conta
 }
 
 func writeFile(filename string, data string) error {
-	err := os.WriteFile(filename, []byte(data), 0644)
+	err := os.WriteFile(filename, []byte(data), 0666)
 	if err != nil {
 		return err
 	}
@@ -322,7 +322,7 @@ func basicAuth(username, password string) string {
 }
 
 func CreateFile(container string, pod string) error {
-	_, err := os.OpenFile(fmt.Sprintf("/%s-%s.txt", container, pod), os.O_RDONLY|os.O_CREATE, 0644)
+	_, err := os.OpenFile(fmt.Sprintf("/%s-%s.txt", container, pod), os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return err
 	}
@@ -330,7 +330,7 @@ func CreateFile(container string, pod string) error {
 }
 
 func CreateExtFile(container string, pod string) error {
-	_, err := os.OpenFile(fmt.Sprintf("/%s-%s-ext.txt", container, pod), os.O_RDONLY|os.O_CREATE, 0644)
+	_, err := os.OpenFile(fmt.Sprintf("/%s-%s-ext.txt", container, pod), os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return err
 	}
